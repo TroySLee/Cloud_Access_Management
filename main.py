@@ -48,9 +48,7 @@ usage = sqlalchemy.Table(
     sqlalchemy.Column("count", sqlalchemy.Integer, default=0),
 )
 
-engine = sqlalchemy.create_engine(
-    DATABASE_URL, connect_args={"check_same_thread": False} 
-)
+engine = sqlalchemy.create_engine(DATABASE_URL)
 metadata.create_all(engine)
 
 
@@ -68,7 +66,7 @@ class Plan(BaseModel):
     name: str
     description: str
     api_permissions: List[str]
-    usage_limits: Dict[str, int]  # API endpoint -> limit
+    usage_limits: Dict[str, int]  
 
 class Permission(BaseModel):
     name: str
@@ -110,7 +108,6 @@ async def get_plan(plan_id: str):
     return Plan(**result)
 
 
-# Example API Endpoints continued...
 @app.put("/plans/{plan_id}", response_model=Plan) # Admin function
 async def modify_plan(plan_id: str, plan: Plan, current_user: dict = Depends(get_current_user)):
     if current_user["user_id"] != "admin":
@@ -160,7 +157,6 @@ async def delete_permission(permission_id: str, current_user: dict = Depends(get
 
 
 # User Subscription Handling
-
 @app.post("/subscriptions")  # Customer function
 async def subscribe_to_plan(subscription: Subscription, current_user: dict = Depends(get_current_user)):
 
@@ -181,7 +177,7 @@ async def view_subscription_details(user_id: str, current_user: dict = Depends(g
     return Subscription(**result)
 
 
-# Example mock API – Replace this with actual cloud service integration
+
 @app.get("/cloud_api/resource1")  
 async def cloud_api_resource1(current_user: dict = Depends(get_current_user)):
 
@@ -193,8 +189,6 @@ async def cloud_api_resource1(current_user: dict = Depends(get_current_user)):
 #  Access Control
 @app.get("/access/{user_id}/{api_request}")
 async def check_access_permission(user_id: str, api_request: str, current_user: dict = Depends(get_current_user)):
-
-    #Simplified access control for demo. Enhance for production.
 
     plan_id_query = subscriptions.select(subscriptions.c.plan_id).where(subscriptions.c.user_id == user_id)
     plan_id_result = await database.fetch_one(plan_id_query)
@@ -216,7 +210,6 @@ async def check_access_permission(user_id: str, api_request: str, current_user: 
 
 
     #check if limit is exceeded
-
     usage_limit = plan["usage_limits"].get(api_request)  # Get the limit for this specific API
     if usage_limit is not None:  # Only check if a limit is defined for this API
         usage_count = await get_usage_count(user_id, api_request)
@@ -227,7 +220,6 @@ async def check_access_permission(user_id: str, api_request: str, current_user: 
 
 
 # Usage Tracking and Limit Enforcement
-
 async def track_usage(user_id: str, api_endpoint: str):
 
     query = usage.update().where((usage.c.user_id == user_id) & (usage.c.api_endpoint == api_endpoint)).values(count=usage.c.count + 1)
@@ -246,5 +238,5 @@ async def get_usage_count(user_id: str, api_endpoint: str):
     return result["count"] if result else 0
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=8000)
