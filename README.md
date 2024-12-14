@@ -1,5 +1,4 @@
-# Cloud_Access_Management
-# Final Project
+# CPSC 449 Final Project
 
 Team Members:
 
