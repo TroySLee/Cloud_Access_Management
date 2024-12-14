@@ -13,6 +13,7 @@ DATABASE_URL = "sqlite:///./cloud_access.db"
 database = databases.Database(DATABASE_URL)
 metadata = sqlalchemy.MetaData()
 
+#Table info
 plans = sqlalchemy.Table(
     "plans",
     metadata,
@@ -53,15 +54,15 @@ metadata.create_all(engine)
 
 
 app = FastAPI()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token") # Placeholder for now
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token") # Placeholder for now
 
 # Placeholder for OAuth2 authentication. Replace with actual implementation.
 async def get_current_user(token: str = Depends(oauth2_scheme)):
      # Replace with your authentication logic
     return {"user_id": "admin"} if token == "admin_token" else {"user_id": token}
 
-
+#pydantic models
 class Plan(BaseModel):
     name: str
     description: str
@@ -185,7 +186,6 @@ async def cloud_api_resource1(current_user: dict = Depends(get_current_user)):
     return {"message": "Accessed resource1"}
 
 
-
 #  Access Control
 @app.get("/access/{user_id}/{api_request}")
 async def check_access_permission(user_id: str, api_request: str, current_user: dict = Depends(get_current_user)):
@@ -237,6 +237,41 @@ async def get_usage_count(user_id: str, api_endpoint: str):
     result = await database.fetch_one(query)
     return result["count"] if result else 0
 
+
+#some apis
+@app.get("/cloud_api/object_storage")
+async def object_storage(current_user: dict = Depends(get_current_user)):  
+    await track_usage(current_user["user_id"], "/cloud_api/object_storage")
+    return {"message": "Accessed Object Storage"}
+
+
+@app.post("/cloud_api/image_processing/resize")
+async def image_resize(current_user: dict = Depends(get_current_user)):
+    await track_usage(current_user["user_id"], "/cloud_api/image_processing/resize")
+    return {"message": "Image Resized"}
+
+
+@app.get("/cloud_api/database/query")
+async def database_query(current_user: dict = Depends(get_current_user)):
+    await track_usage(current_user["user_id"], "/cloud_api/database/query")
+    return {"message": "Database Query Executed"}
+
+
+@app.post("/cloud_api/machine_learning/sentiment_analysis")
+async def sentiment_analysis(current_user: dict = Depends(get_current_user)):
+    await track_usage(current_user["user_id"], "/cloud_api/machine_learning/sentiment_analysis")
+    return {"message": "Sentiment Analysis Performed"}
+
+
+@app.get("/cloud_api/file_conversion/pdf_to_docx")
+async def file_conversion(current_user: dict = Depends(get_current_user)):
+    await track_usage(current_user["user_id"], "/cloud_api/file_conversion/pdf_to_docx")
+    return {"message": "File Converted"}
+
+@app.post("/cloud_api/video_processing/transcribe")
+async def transcribe_video(current_user: dict = Depends(get_current_user)):
+   await track_usage(current_user["user_id"], "/cloud_api/video_processing/transcribe")
+   return {"message": "Video transcribed"}
 
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=8000)
