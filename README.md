@@ -3,6 +3,6 @@
 
 Team Members:
 
-Troy Lee
-Parker Hill
+1. Troy Lee
+2. Parker Hill
  
