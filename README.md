@@ -9,4 +9,7 @@ Team Members:
 pip install fastapi uvicorn databases sqlalchemy pydantic uuid
 
 To run:
-uvicorn main:app –reload
+uvicorn main:app --reload
+
+# Demonstration Video Link
+https://drive.google.com/file/d/16vog65XKpGfyT1qIa33uU62vAoYc4u-b/view?usp=sharing
